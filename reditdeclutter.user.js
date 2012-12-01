@@ -11,7 +11,7 @@
 // @grant GM_addStyle
 // ==/UserScript==
 
-GM_addStyle(
+GM_addStyle((<><![CDATA[
 .link.odd {
     overflow:hidden !important;
     margin:0px !important;
@@ -194,5 +194,5 @@ GM_addStyle(
     display:none;
 }
 
-);
+]]></>).toString());
 
