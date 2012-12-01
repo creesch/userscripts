@@ -107,7 +107,21 @@ GM_addStyle((<><![CDATA[
 }
 
 .link .midcol {
-    opacity: 0.5 !important;
+    opacity: 0.2 !important;
+    -moz-transition-property : opacity; /* FireFox */
+    -webkit-transition-property : opacity; /* Safari / Chrome */
+    -o-transition-property : opacity; /* Opera */
+    transition-property : opacity; /* W3C */
+    
+    
+    -moz-transition-duration : 0.4s; /* FireFox */
+    -webkit-transition-duration :  0.4s; /* Safari / Chrome */
+    -o-transition-duration :  0.4s; /* Opera */
+    transition-duration :  0.4s; /* W3C */
+}
+
+.link .midcol:hover .score {
+    opacity: 0.2 !important;
     -moz-transition-property : opacity; /* FireFox */
     -webkit-transition-property : opacity; /* Safari / Chrome */
     -o-transition-property : opacity; /* Opera */
@@ -121,7 +135,21 @@ GM_addStyle((<><![CDATA[
 }
 
 .link .midcol:hover {
-    opacity: 1 !important;
+    opacity: 0.8 !important;
+    -moz-transition-property : opacity; /* FireFox */
+    -webkit-transition-property : opacity; /* Safari / Chrome */
+    -o-transition-property : opacity; /* Opera */
+    transition-property : opacity; /* W3C */
+    
+    
+    -moz-transition-duration : 0.4s; /* FireFox */
+    -webkit-transition-duration :  0.4s; /* Safari / Chrome */
+    -o-transition-duration :  0.4s; /* Opera */
+    transition-duration :  0.4s; /* W3C */
+}
+
+.link .midcol:hover .score {
+    opacity: 0.3 !important;
     -moz-transition-property : opacity; /* FireFox */
     -webkit-transition-property : opacity; /* Safari / Chrome */
     -o-transition-property : opacity; /* Opera */
@@ -193,6 +221,7 @@ GM_addStyle((<><![CDATA[
 .link .rank {
     display:none;
 }
+
 
 ]]></>).toString());
 
