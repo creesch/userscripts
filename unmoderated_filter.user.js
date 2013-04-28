@@ -16,17 +16,16 @@ function unmoderatedfilter() {
 //
 // Enter the subs below
 //
-var filtersubs=["technology"];
+var filtersubs=["AdviceAnimals"];
    
    
 if( location.pathname.match(/\/about\/(?:unmoderated)\/?/) ){
-    $('<li><a href="javascript:;"  class="test-on">filter</a></li>').appendTo('#header-bottom-left').click(filter);
+    $('<ul class="tabmenu" style="position:fixed; display:block; top:45px; left:15px;"><li><a href="javascript:;"  class="test-on">filter</a></li></ul>').appendTo('#header-bottom-left').click(filter);
 }
  
 function filter(){
-   
-    $('.thing').each(function() {
-   
+      $('.thing').each(function() {
+    $('.sidecontentbox').css('display', 'none');
     var subname = $(this).children('.entry').children('.tagline').children('a.subreddit').text();
  
     if ($.inArray(subname, filtersubs) != -1) {
@@ -39,9 +38,9 @@ function filter(){
     }
 	
 
-function addScroll()
-{
-$("body").append("<p id=\\"loading\\" style=\\"display:none;position: fixed; bottom: 10px; font-size: large; background: none repeat scroll 0% 0% red;\\">Loading</p>");
+function addScroll() {
+
+$('body').append('<p id="loading" style="display:none;position: fixed; bottom: 10px; font-size: large; background: none repeat scroll 0% 0% red;">Loading</p>');
 (function($){
 		$.fn.endlessScroll = function(options){
 		
@@ -49,9 +48,9 @@ $("body").append("<p id=\\"loading\\" style=\\"display:none;position: fixed; bot
 			bottomPixels: 50,
 			fireOnce: true,
 			fireDelay: 150,
-			loader: "<br />Loading...<br />",
-			data: "",
-			insertAfter: "div:last",
+			loader: '<br />Loading...<br />',
+			data: '',
+			insertAfter: 'div:last',
 			resetCounter: function(){ return false; },
 			callback: function(){ return true; },
 			ceaseFire: function(){ return false; }
@@ -80,8 +79,8 @@ $("body").append("<p id=\\"loading\\" style=\\"display:none;position: fixed; bot
 						
 						fired = true;
 						fireSequence++;
-						$(options.insertAfter).after("<div id=\\"endless_scroll_loader\\">" + options.loader + "</div>");
-						if (typeof options.data == "function")
+						$(options.insertAfter).after('<div id="endless_scroll_loader">' + options.loader + '</div>');
+						if (typeof options.data == 'function')
 						{
 							data = options.data.apply(this);
 						}
@@ -91,18 +90,18 @@ $("body").append("<p id=\\"loading\\" style=\\"display:none;position: fixed; bot
 						}
 						if (data !== false)
 						{
-							$("div#endless_scroll_loader").remove();
-							$(options.insertAfter).after("<div id=\\"endless_scroll_data\\">" + data + "</div>");
-							$("div#endless_scroll_data").hide().fadeIn();
-							$("div#endless_scroll_data").removeAttr("id");
+							$('div#endless_scroll_loader').remove();
+							$(options.insertAfter).after('<div id="endless_scroll_data">' + data + '</div>');
+							$('div#endless_scroll_data').hide().fadeIn();
+							$('div#endless_scroll_data').removeAttr('id');
 							var args = new Array();
 							args[0] = fireSequence;
 							options.callback.apply(this, args);
 							if (options.fireDelay !== false || options.fireDelay !== 0)
 							{
 								
-								$("body").after("<div id=\\"endless_scroll_marker\\"></div>");
-								$("div#endless_scroll_marker").fadeTo(options.fireDelay, 1, function(){
+								$('body').after('<div id="endless_scroll_marker"></div>');
+								$('div#endless_scroll_marker').fadeTo(options.fireDelay, 1, function(){
 									$(this).remove();
 									fired = false;
 								});
@@ -123,19 +122,19 @@ $(document).endlessScroll({
 				bottomPixels: 450,
 				fireDelay: 10,
 				callback: function(p){
-			$("#loading").show();
+			$('#loading').show();
 if(working)
 {working=false;			
-$.get($("p.nextprev a[rel$=next]")[0].href,
+$.get($('p.nextprev a[rel$=next]')[0].href,
 function(data)
-{$("[id=siteTable]:last").append($(data).find("[id=siteTable]:last").html());
-$("p.nextprev a[rel$=next]")[0].href=$(data).find("p.nextprev a[rel$=next]")[0].href;
-working=true;$("#loading").hide();
+{$('[id=siteTable]:last').append($(data).find('[id=siteTable]:last').html());
+$('p.nextprev a[rel$=next]')[0].href=$(data).find('p.nextprev a[rel$=next]')[0].href;
+working=true;$('#loading').hide();
 });
 }}
 			});
 }
-if($("p.nextprev a[rel$=next]").length>0)
+if($('p.nextprev a[rel$=next]').length>0)
 addScroll();	
 	
    
