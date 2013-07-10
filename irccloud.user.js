@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.3
+// @version    0.4
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com*
 // @match      https://*.irccloud.com*
@@ -13,18 +13,20 @@ function main() {
     $(document).on('DOMNodeInserted', function (e) {
         var element = e.target;
 
-        if (element.className !== 'row messageRow chat self type_buffer_msg') {
-            return;
-        }
+
 
         //console.log(element);
         $element = $(element);
-        //console.log(element);
+        
+        if (!$element.hasClass('type_buffer_msg'))  {
+            return;
+        }
         //console.log($element.find('.content').html());
         var content = $element.find('.content').html();
         //console.log(content);
 
-        var newcontent = content.replace(/(\/r\/\w+)/i, '<a href="http://www.reddit.com$&" target="_blank">$&</a>');
+        var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, '<a href="http://www.reddit.com$1" target="_blank">$1</a>');
+        
         //console.log(newcontent);
         $element.find('.content').html(newcontent);
         $element.find('.content').addClass('userscript');
@@ -40,7 +42,7 @@ function main() {
         $('.content').each(function (){ 
             if(!$(this).hasClass('userscript')) { 
           var content = $(this).html(); 
-          var newcontent = content.replace(/(\/r\/\w+)/i, '<a href="http://www.reddit.com$&" target="_blank">$&</a>');
+          var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, '<a href="http://www.reddit.com$1" target="_blank">$1</a>');
           $(this).addClass('userscript');
         $(this).html(newcontent);
             }
