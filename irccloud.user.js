@@ -24,17 +24,29 @@ function main() {
         var content = $element.find('.content').html();
         //console.log(content);
 
-        var newcontent = content.replace(/(\/r\/[a-z]+)/i, '<a href="http://www.reddit.com$&" target="_blank">$&</a>');
+        var newcontent = content.replace(/(\/r\/\w+)/i, '<a href="http://www.reddit.com$&" target="_blank">$&</a>');
         //console.log(newcontent);
         $element.find('.content').html(newcontent);
+        $element.find('.content').addClass('userscript');
 
     });
 
     $('body').delegate('#limits', 'click', function () {
 
-        $(this).hide();
+     
     });
 
+ $('body').delegate('.buffer', 'click', function () {
+        $('.content').each(function (){ 
+            if(!$(this).hasClass('userscript')) { 
+          var content = $(this).html(); 
+          var newcontent = content.replace(/(\/r\/\w+)/i, '<a href="http://www.reddit.com$&" target="_blank">$&</a>');
+          $(this).addClass('userscript');
+        $(this).html(newcontent);
+            }
+        });
+  
+    });
 
 }
 
