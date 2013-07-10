@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.2
+// @version    0.3
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com*
 // @match      https://*.irccloud.com*
@@ -36,7 +36,7 @@ function main() {
      
     });
 
- $('body').delegate('.buffer', 'click', function () {
+ $('body').delegate('li.buffer', 'click', function () {
         $('.content').each(function (){ 
             if(!$(this).hasClass('userscript')) { 
           var content = $(this).html(); 
@@ -46,6 +46,8 @@ function main() {
             }
         });
   
+     $('table.buffer').filter(':visible').find('.extrasDismiss.bufferAboveExtrasDismiss').click();
+     
     });
 
 }
