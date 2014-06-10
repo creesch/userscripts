@@ -12,7 +12,8 @@ function main() {
 
     $(document).on('DOMNodeInserted', function (e) {
         var element = e.target;
-
+        
+        $('#limits').remove();
 
 
         //console.log(element);
