@@ -7,7 +7,7 @@
 // @match      https://*.irccloud.com*
 // @include      http://*.irccloud.com*
 // @include      https://*.irccloud.com*
-// @doenloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
+// @downloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
 // ==/UserScript==
 
 function main() {
