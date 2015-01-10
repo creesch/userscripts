@@ -3,10 +3,10 @@
 // @namespace  http://www.reddit.com/r/creesch
 // @version    0.5
 // @description  do stuff on irccloud!
-// @match      http://*.irccloud.com*
-// @match      https://*.irccloud.com*
-// @include      http://*.irccloud.com*
-// @include      https://*.irccloud.com*
+// @match      http://*.irccloud.com/*
+// @match      https://*.irccloud.com/*
+// @include      http://*.irccloud.com/*
+// @include      https://*.irccloud.com/*
 // @downloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
 // ==/UserScript==
 
