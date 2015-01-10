@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.4
+// @version    0.5
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com*
 // @match      https://*.irccloud.com*
+// @include      http://*.irccloud.com*
+// @include      https://*.irccloud.com*
+// @doenloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
 // ==/UserScript==
 
 function main() {
@@ -26,7 +29,7 @@ function main() {
         var content = $element.find('.content').html();
         //console.log(content);
 
-        var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, '<a href="http://www.reddit.com$1" target="_blank">$1</a>');
+        var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, ' <a href="http://www.reddit.com$1" target="_blank">$1</a>');
         
         //console.log(newcontent);
         $element.find('.content').html(newcontent);
@@ -43,7 +46,7 @@ function main() {
         $('.content').each(function (){ 
             if(!$(this).hasClass('userscript')) { 
           var content = $(this).html(); 
-          var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, '<a href="http://www.reddit.com$1" target="_blank">$1</a>');
+          var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, ' <a href="http://www.reddit.com$1" target="_blank">$1</a>');
           $(this).addClass('userscript');
         $(this).html(newcontent);
             }
