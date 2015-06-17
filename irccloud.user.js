@@ -29,7 +29,7 @@ function main() {
         var content = $element.find('.content').html();
         //console.log(content);
 
-        var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, ' <a href="http://www.reddit.com$1" target="_blank">$1</a>');
+        var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a href="http://www.reddit.com$1" target="_blank">$1</a>');
         
         //console.log(newcontent);
         $element.find('.content').html(newcontent);
