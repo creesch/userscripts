@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.9
+// @version    0.10
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -63,6 +63,7 @@ function main() {
 
 
 	// irc markdown 
+	// ***bold italic***
 	// **bold**
 	// *italic*
 	// _underline_
@@ -75,11 +76,12 @@ function main() {
         $(this).on('keydown', function(e) {
             if (e.keyCode === 13) {
                 e.preventDefault();
-                e.currentTarget.value = e.currentTarget.value.replace(/\*\*(.+?)\*\*/g, '\x02$1\x0F');
-                e.currentTarget.value = e.currentTarget.value.replace(/\*(.+?)\*/g, '\x1D$1\x0F');
-                e.currentTarget.value = e.currentTarget.value.replace(/_(.+?)_/g, '\x1F$1\x0F');
-                e.currentTarget.value = e.currentTarget.value.replace(/\^([0-9]{2},[0-9]{2}.+?)\^/g, '\x03$1\x0F');
-                e.currentTarget.value = e.currentTarget.value.replace(/\^([0-9]{2}.+?)\^/g, '\x03$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/\*\*\*(.*?)\*\*\*/g, '\x1D\x02$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/\*\*(.*?)\*\*/g, '\x02$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/\*(.*?)\*/g, '\x1D$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/_(.*?)_/g, '\x1F$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/\^([0-9]{2},[0-9]{2}.*?)\^/g, '\x03$1\x0F');
+                e.currentTarget.value = e.currentTarget.value.replace(/\^([0-9]{2}.*?)\^/g, '\x03$1\x0F');
             }
         });
     });
