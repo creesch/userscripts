@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.8
+// @version    0.9
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -50,7 +50,7 @@ function main() {
 
                 var content = $(this).html();
 
-                var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/, ' <a href="https://www.reddit.com$1" target="_blank">$1</a>');
+                var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a href="https://www.reddit.com$1" target="_blank">$1</a>');
                 $(this).addClass('userscript');
                 $(this).html(newcontent);
             }
