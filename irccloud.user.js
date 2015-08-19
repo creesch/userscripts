@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.12
+// @version    0.15
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -71,10 +71,42 @@ function main() {
 	// ^03,06colorbackground^ <-- same as above but with a background 
 	
     $body = $('body');
+    
+   $body.on('keyup', function(e) {
+        $checkbox = $body.find('.markdown:visible');
+        var checkboxChecked = $body.find('.markdown:visible:checked').length;
+            
+            if(e.ctrlKey && e.keyCode == 68) {
+                if (checkboxChecked) { 
+                    $checkbox.prop( "checked", false );
+                    checkboxChecked = false;
+                } else { 
+                    $checkbox.prop( "checked", true );
+                    checkboxChecked = true;
+                }
+            }
+     });
+    
     $body.delegate('[id^=bufferInputView]:visible', 'click', function() {
+        var $this = $(this);
+        var $checkbox = $this.closest('form').find('.markdown');
+        if(!$checkbox.length) { 
+            $this.after('<input type="checkbox" class="markdown" style="float: right" name="markdown" value="markdown">'); 
+            $this.css('width', 'calc(100% - 13px)');
+        }
+        
+       
+        
+        $this.on('keydown', function(e) {
+            
+          
 
-        $(this).on('keydown', function(e) {
-            if (e.keyCode === 13) {
+            var checkboxChecked = $body.find('.markdown:visible:checked').length;
+            console.log(checkboxChecked);
+            console.log(e);
+            if (e.keyCode === 13 && checkboxChecked) {
+                
+                
                 e.preventDefault();
                 e.currentTarget.value = e.currentTarget.value.replace(/\*\*\*(.*?)\*\*\*/g, '\x1D\x02$1\x0F');
                 e.currentTarget.value = e.currentTarget.value.replace(/\*\*(.*?)\*\*/g, '\x02$1\x0F');
