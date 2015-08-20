@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.17
+// @version    0.18
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -76,7 +76,7 @@ function main() {
         $checkbox = $body.find('.markdown:visible');
         var checkboxChecked = $body.find('.markdown:visible:checked').length;
             
-            if(e.ctrlKey && e.keyCode == 68) {
+            if(e.ctrlKey && e.keyCode == 81) {
                 if (checkboxChecked) { 
                     $checkbox.prop( "checked", false );
                     checkboxChecked = false;
