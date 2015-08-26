@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.18
+// @version    0.19
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -117,7 +117,36 @@ function main() {
             }
         });
     });
-
+    
+    
+    //////// Hide inactive stuff ////////
+    var delay = 500,
+        enabled = false,
+        intId;
+    
+    $('#buffersFooter').append('<p><a class="tb-show-active" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p>');
+    
+    function showActive() {
+        $('ul.buffers .active:not(.unread)').hide();
+        $('ul.buffers .active.unread').show();
+        $('ul.buffers .active.selected').show();  // always show the chann we're in.
+    }
+    
+    
+    $body.on('click', '.tb-show-active', function() {
+        var $this = $(this);
+        
+        if (!enabled) {
+            $this.text('show all');
+            intId = setInterval(showActive, delay); 
+        } else {
+            $this.text('hide inactive');
+            clearInterval(intId);
+            $('ul.buffers .active:not(.unread)').show();
+        }
+        
+        enabled = !enabled;
+    });
 }
 
 
