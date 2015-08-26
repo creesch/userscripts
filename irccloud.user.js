@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.19
+// @version    0.20
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -118,13 +118,12 @@ function main() {
         });
     });
     
-    
     //////// Hide inactive stuff ////////
     var delay = 500,
         enabled = false,
         intId;
     
-    $('#buffersFooter').append('<p><a class="tb-show-active" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p>');
+    $('#sidebar').prepend('<div id="buffersFooter" style="display: block;"><p><a class="tb-show-active" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p></div>');
     
     function showActive() {
         $('ul.buffers .active:not(.unread)').hide();
@@ -137,9 +136,20 @@ function main() {
         var $this = $(this);
         
         if (!enabled) {
+            // don't show other clutter.
+            $('.archiveToggle.show').hide();
+            $('.disconnected').hide();
+            $('#addNetwork').hide();
+            $('#reorderNetworks.show').hide();
+            
             $this.text('show all');
             intId = setInterval(showActive, delay); 
         } else {
+            $('.archiveToggle.show').show();
+            $('.disconnected').show();
+            $('#addNetwork').show();
+            $('#reorderNetworks.show').show();
+            
             $this.text('hide inactive');
             clearInterval(intId);
             $('ul.buffers .active:not(.unread)').show();
