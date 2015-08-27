@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.20
+// @version    0.21
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -119,14 +119,48 @@ function main() {
     });
     
     //////// Hide inactive stuff ////////
-    var delay = 500,
+    var delay = 1000,
         enabled = false,
+        stickies = JSON.parse(localStorage['IRCC.stickies'] || '[]'),
         intId;
     
     $('#sidebar').prepend('<div id="buffersFooter" style="display: block;"><p><a class="tb-show-active" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p></div>');
     
+    // wait for chann list to load
+    setTimeout(function() {
+        $('li.buffer a.buffer').each(function() {
+            var $this = $(this),
+                checked = (stickies.indexOf($this.prop('title')) !== -1);
+            
+            $this.after('<input type="checkbox" class="tb-sticky-chan" style="float: right;"'+ (checked ? ' checked' : '') +'/></input>');
+        });        
+    }, 5000);
+    
+    $body.on('click', '.tb-sticky-chan', function() {
+        var $this = $(this),
+            name = $this.prev().attr('title');
+        
+        if ($this.prop('checked')){
+            stickies.push(name);
+        } else {
+            var idx = stickies.indexOf(name);
+            if (idx !== -1) {
+                stickies.splice(idx, 1);
+            }
+        }
+        
+        localStorage['IRCC.stickies'] = JSON.stringify(stickies);
+        console.log(stickies);
+    });
+    
     function showActive() {
-        $('ul.buffers .active:not(.unread)').hide();
+        $('ul.buffers .active:not(.unread)').each(function() {
+            var $this = $(this);
+            if (stickies.indexOf($this.find('a.buffer').prop('title')) === -1) {
+                $this.hide();
+            }
+        });
+        
         $('ul.buffers .active.unread').show();
         $('ul.buffers .active.selected').show();  // always show the chann we're in.
     }
@@ -144,6 +178,7 @@ function main() {
             
             $this.text('show all');
             intId = setInterval(showActive, delay); 
+            showActive();
         } else {
             $('.archiveToggle.show').show();
             $('.disconnected').show();
