@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.22
+// @version    0.23
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -9,45 +9,34 @@
 // @include      https://*.irccloud.com/*
 // @downloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
 // ==/UserScript==
+
 function main() {
-
-	// insert /u/ and /r/ links for reddit
+    var $body = $('body');
+    
+    //////// subreddit and user linking ////////
     $(document).on('DOMNodeInserted', function(e) {
-        var element = e.target;
-
-        $('#limits').remove();
-
-        //console.log(element);
-        $element = $(element);
+        $('#limits').remove(); //because it gets replaced every time.
+        
+        var element = e.target,
+            $element = $(element);
 
         if (!$element.hasClass('type_buffer_msg')) {
             return;
         }
-        //console.log($element.find('.content').html());
+        
         var content = $element.find('.content').html();
-        //console.log(content);
         if (content) {
             var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a href="https://www.reddit.com$1" target="_blank">$1</a>');
-
-            //console.log(newcontent);
+            
             $element.find('.content').html(newcontent);
             $element.find('.content').addClass('userscript');
         }
-
     });
-
-    $('body').delegate('#limits', 'click', function() {
-
-
-    });
-	
 	
 	// when changing channels also insert /u/ and /r/ links as well as dismissing the read buffer.
-
-    $('body').delegate('li.buffer', 'click', function() {
+    $body.on('click', 'li.buffer', function() {
         $('.content').each(function() {
             if (!$(this).hasClass('userscript')) {
-
                 var content = $(this).html();
 
                 var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a href="https://www.reddit.com$1" target="_blank">$1</a>');
@@ -57,21 +46,18 @@ function main() {
         });
 
         $('table.buffer').filter(':visible').find('.extrasDismiss.bufferAboveExtrasDismiss').click();
-
-
     });
 
 
-	// irc markdown 
-	// ***bold italic***
-	// **bold**
-	// *italic*
-	// _underline_
-	// ^03color^  <--The number is a color code (user 00 till 15)
-	// ^03,06colorbackground^ <-- same as above but with a background 
-	
-    $body = $('body');
-    
+	//////// irc markdown ////////
+    /*
+	***bold italic***
+	**bold**
+	*italic*
+	~underline~
+	^03color^  <--The number is a color code (user 00 till 15)
+	^03,06colorbackground^ <-- same as above but with a background 
+    */
    $body.on('keyup', function(e) {
         $checkbox = $body.find('.markdown:visible');
         var checkboxChecked = $body.find('.markdown:visible:checked').length;
@@ -95,19 +81,13 @@ function main() {
             $this.css('width', 'calc(100% - 13px)');
         }
         
-       
-        
         $this.on('keydown', function(e) {
-            
-          
-
             var checkboxChecked = $body.find('.markdown:visible:checked').length;
             //console.log(checkboxChecked);
             //console.log(e);
             if (e.keyCode === 13 && checkboxChecked) {
-                
-                
                 e.preventDefault();
+                
                 e.currentTarget.value = e.currentTarget.value.replace(/\*\*\*(.*?)\*\*\*/g, '\x1D\x02$1\x0F');
                 e.currentTarget.value = e.currentTarget.value.replace(/\*\*(.*?)\*\*/g, '\x02$1\x0F');
                 e.currentTarget.value = e.currentTarget.value.replace(/\*(.*?)\*/g, '\x1D$1\x0F');
@@ -118,7 +98,8 @@ function main() {
         });
     });
     
-    //////// Hide inactive stuff ////////
+    
+    //////// Hide inactive ////////
     var delay = 1000,
         enabled = false,
         stickies = JSON.parse(localStorage['IRCC.stickies'] || '[]'),
@@ -161,6 +142,7 @@ function main() {
     function hideInactiveChanns() {
         $('ul.buffers .active:not(.unread)').each(function() {
             var $this = $(this);
+            
             if (stickies.indexOf($this.find('a.buffer').prop('title')) === -1) {
                 $this.hide();
             }
@@ -194,12 +176,10 @@ function main() {
             $('ul.buffers .active:not(.unread)').show();
         }
         
-        enabled = !enabled;
-        
         //save it
+        enabled = !enabled;
         localStorage['IRCC.hideInactive'] = JSON.stringify(enabled);
     }
-    
     
     $body.on('click', '.tb-hide-inactive', function() {
         toggleInactive();
@@ -235,5 +215,4 @@ function inject(fn) {
     console.log("[CN] Done injecting wrapper script.");
 
 }
-
 inject(main);
