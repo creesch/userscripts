@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.21
+// @version    0.22
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -122,9 +122,10 @@ function main() {
     var delay = 1000,
         enabled = false,
         stickies = JSON.parse(localStorage['IRCC.stickies'] || '[]'),
+        hideInactive = JSON.parse(localStorage['IRCC.hideInactive'] || 'false'),
         intId;
     
-    $('#sidebar').prepend('<div id="buffersFooter" style="display: block;"><p><a class="tb-show-active" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p></div>');
+    $('#sidebar').prepend('<div id="buffersFooter" style="display: block;"><p><a class="tb-hide-inactive" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p></div>');
     
     // wait for chann list to load
     setTimeout(function() {
@@ -133,7 +134,11 @@ function main() {
                 checked = (stickies.indexOf($this.prop('title')) !== -1);
             
             $this.after('<input type="checkbox" class="tb-sticky-chan" style="float: right;"'+ (checked ? ' checked' : '') +'/></input>');
-        });        
+        });
+        
+        if (hideInactive) {
+            toggleInactive();
+        }
     }, 5000);
     
     $body.on('click', '.tb-sticky-chan', function() {
@@ -153,7 +158,7 @@ function main() {
         console.log(stickies);
     });
     
-    function showActive() {
+    function hideInactiveChanns() {
         $('ul.buffers .active:not(.unread)').each(function() {
             var $this = $(this);
             if (stickies.indexOf($this.find('a.buffer').prop('title')) === -1) {
@@ -165,9 +170,8 @@ function main() {
         $('ul.buffers .active.selected').show();  // always show the chann we're in.
     }
     
-    
-    $body.on('click', '.tb-show-active', function() {
-        var $this = $(this);
+    function toggleInactive() {
+        var $this = $('.tb-hide-inactive');
         
         if (!enabled) {
             // don't show other clutter.
@@ -177,8 +181,8 @@ function main() {
             $('#reorderNetworks.show').hide();
             
             $this.text('show all');
-            intId = setInterval(showActive, delay); 
-            showActive();
+            intId = setInterval(hideInactiveChanns, delay); 
+            hideInactiveChanns();
         } else {
             $('.archiveToggle.show').show();
             $('.disconnected').show();
@@ -191,6 +195,14 @@ function main() {
         }
         
         enabled = !enabled;
+        
+        //save it
+        localStorage['IRCC.hideInactive'] = JSON.stringify(enabled);
+    }
+    
+    
+    $body.on('click', '.tb-hide-inactive', function() {
+        toggleInactive();
     });
 }
 
