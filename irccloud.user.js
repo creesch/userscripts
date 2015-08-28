@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.24
+// @version    0.25
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -13,6 +13,16 @@
 function main() {
     var $body = $('body');
 
+    
+    // CSS STUFFS (that isn't the actual theme) 
+    
+    $('head').append('<style>\
+                       #buffers li.buffer a, #buffers ul.openArchives {\
+                       display: inline-block;\
+                       width: calc(100%- 30px);\
+                       }\
+                     </style>');
+    
     //////// subreddit and user linking ////////
     $(document).on('DOMNodeInserted', function(e) {
         $('#limits').remove(); //because it gets replaced every time.
@@ -114,13 +124,21 @@ function main() {
             var $this = $(this),
                 checked = (stickies.indexOf($this.prop('title')) !== -1);
 
-            $this.after('<input type="checkbox" class="tb-sticky-chan" style="float: right;"' + (checked ? ' checked' : '') + '/></input>');
+            $this.after('<input type="checkbox" class="tb-sticky-chan" style="display: none"' + (checked ? ' checked' : '') + '/></input>');
         });
 
+        $('#headercell #settings').before('<span id="tb-select-sticky"><a href="javascript:;">Select sticky chans</a></span>');
         if (hideInactive) {
             toggleInactive();
         }
+        
+        
+        
     }, 5000);
+    
+    $body.on('click', '#tb-select-sticky a', function() {
+        $body.find('.tb-sticky-chan').toggle();
+    });
 
     $body.on('click', '.tb-sticky-chan', function() {
         var $this = $(this),
