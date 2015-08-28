@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name       irccloud
+// @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.26
+// @version    0.30
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -9,20 +9,81 @@
 // @include      https://*.irccloud.com/*
 // @downloadURL https://raw.github.com/creesch/userscripts/master/irccloud.user.js
 // ==/UserScript==
-
 function main() {
     var $body = $('body');
 
-    
+
     // CSS STUFFS (that isn't the actual theme) 
-    
+
     $('head').append('<style>\
                        #buffers li.buffer a.tb-select-sticky, #buffers ul.openArchives.tb-select-sticky {\
                        display: inline-block;\
                        width: calc(100%- 30px);\
                        }\
+                       table.shortcuts th {\
+                       vertical-align: top;\
+                       }\
                      </style>');
-    
+
+	// ADD HTML STUFFS
+    $body.find('.shortcuts').before('<table class="shortcuts">\
+    <tbody>\
+        <tr class="heading">\
+               <th>Script stuffs!</th>\
+               <td></td>\
+        </tr>\
+        <tr>\
+            <th><kbd>&lt;Ctrl&gt;</kbd> + <kbd>Q</kbd></th>\
+            <td>Turn markdown on or off</td>\
+        </tr>\
+        <tr>\
+            <th><kbd>*italic*</kbd></th>\
+            <td>Makes stuff <i>italic</i></td>\
+        </tr>\
+        <tr>\
+            <th><kbd>**bold**</kbd></th>\
+            <td>Makes stuff <b>bold</b></td>\
+        </tr>\
+        <tr>\
+            <th><kbd>~underline~</kbd></th>\
+            <td>Makes stuff <u>underlined</u></td>\
+        </tr>\
+        <tr>\
+            <th><kbd>^03color^ </kbd></th>\
+            <td>The number is a color code </td>\
+        </tr>\
+        <tr>\
+            <th><kbd>^03,06colorbackground^</kbd></th>\
+            <td>same as above but with a background</td>\
+        </tr>\
+        <tr>\
+            <th><kbd>color codes</kbd></th>\
+            <td>\
+                <ol start="0" style="list-style-type: decimal-leading-zero; margin-left: 45px;">\
+                    <li style="color: #FFF; background-color: #000;">White</li>\
+                    <li style="color: #000;">Black</li>\
+                    <li style="color: #000080;">Blue (Navy)</li>\
+                    <li style="color: #008000;">Green</li>\
+                    <li style="color: #F00;">Red</li>\
+                    <li style="color: #A52A2A;">Brown (Maroon)</li>\
+                    <li style="color: #800080;">Purple</li>\
+                    <li style="color: #FFA500;">Orange</li>\
+                    <li style="color: #FFA500;">Yellow</li>\
+                    <li style="color: #0F0;">Light Green (Lime)</li>\
+                    <li style="color: #008080;">Teal (Green/Blue Cyan)</li>\
+                    <li style="color: #0FF;">Light Cyan (Cyan) (Aqua)</li>\
+                    <li style="color: #00F;">Light Blue (Royal)</li>\
+                    <li style="color: #F0F;">Pink (Light Purple) (Fuchsia)</li>\
+                    <li style="color: #808080;">Grey</li>\
+                    <li style="color: #C0C0C0;">Light Grey (Silver)</li>\
+                </ol>\
+            </td>\
+        </tr>\
+    </tbody>\
+</table>');
+
+
+
     //////// subreddit and user linking ////////
     $(document).on('DOMNodeInserted', function(e) {
         $('#limits').remove(); //because it gets replaced every time.
@@ -131,19 +192,20 @@ function main() {
         if (hideInactive) {
             toggleInactive();
         }
-        
-        
-        
+
+
+
+
     }, 5000);
-    
+
     $body.on('click', '#tb-select-sticky a', function() {
-        
-        if($body.find('.tb-sticky-chan:visible').length) {             
+
+        if ($body.find('.tb-sticky-chan:visible').length) {
             $('#buffers li.buffer a, #buffers ul.openArchives').removeClass('tb-select-sticky');
         } else {
             $('#buffers li.buffer a, #buffers ul.openArchives').addClass('tb-select-sticky');
         }
-        
+
         $body.find('.tb-sticky-chan').toggle();
     });
 
