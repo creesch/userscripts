@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.25
+// @version    0.26
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -17,7 +17,7 @@ function main() {
     // CSS STUFFS (that isn't the actual theme) 
     
     $('head').append('<style>\
-                       #buffers li.buffer a, #buffers ul.openArchives {\
+                       #buffers li.buffer a.tb-select-sticky, #buffers ul.openArchives.tb-select-sticky {\
                        display: inline-block;\
                        width: calc(100%- 30px);\
                        }\
@@ -137,6 +137,13 @@ function main() {
     }, 5000);
     
     $body.on('click', '#tb-select-sticky a', function() {
+        
+        if($body.find('.tb-sticky-chan:visible').length) {             
+            $('#buffers li.buffer a, #buffers ul.openArchives').removeClass('tb-select-sticky');
+        } else {
+            $('#buffers li.buffer a, #buffers ul.openArchives').addClass('tb-select-sticky');
+        }
+        
         $body.find('.tb-sticky-chan').toggle();
     });
 
