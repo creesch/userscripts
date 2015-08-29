@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.30
+// @version    0.31
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -192,10 +192,6 @@ function main() {
         if (hideInactive) {
             toggleInactive();
         }
-
-
-
-
     }, 5000);
 
     $body.on('click', '#tb-select-sticky a', function() {
@@ -233,6 +229,8 @@ function main() {
             if (stickies.indexOf($this.find('a.buffer').prop('title')) === -1) {
                 $this.hide();
             }
+            
+            if ($this.hasClass('activeBadge')) $this.show();
         });
 
         $('ul.buffers .active.unread').show();
