@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.31
+// @version    0.32
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -188,13 +188,13 @@ function main() {
             $this.after('<input type="checkbox" class="tb-sticky-chan" style="display: none"' + (checked ? ' checked' : '') + '/></input>');
         });
 
-        $('#headercell #settings').before('<span id="tb-select-sticky"><a href="javascript:;">Select sticky chans</a></span>');
+        $('.accountMenu__items-list:first').append('<li><a href="javascript:;" id="tb-select-sticky">Sticky chans</a></li>');
         if (hideInactive) {
             toggleInactive();
         }
     }, 5000);
 
-    $body.on('click', '#tb-select-sticky a', function() {
+    $body.on('click', '#tb-select-sticky', function() {
 
         if ($body.find('.tb-sticky-chan:visible').length) {
             $('#buffers li.buffer a, #buffers ul.openArchives').removeClass('tb-select-sticky');
