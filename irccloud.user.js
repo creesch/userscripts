@@ -175,9 +175,10 @@ function main() {
         enabled = false,
         stickies = JSON.parse(localStorage['IRCC.stickies'] || '[]'),
         hideInactive = JSON.parse(localStorage['IRCC.hideInactive'] || 'false'),
+        STYLE = 'style="padding: 5px 7px 0px 5px;"',
         intId;
 
-    $('#sidebar').prepend('<div id="buffersFooter" style="display: block;"><p><a class="tb-hide-inactive" href="javascript:;" style="text-align: center;"><span class="icon"></span>hide inactive</a></p></div>');
+    $('#sidebar').prepend('<ul class="bufferList" '+ STYLE +'><p class="archiveToggle show tb-dont-hide" style="display: block;"><button class="tb-hide-inactive">hide inactive</button></p></ul>');
 
     // wait for chann list to load
     setTimeout(function() {
@@ -242,7 +243,7 @@ function main() {
 
         if (!enabled) {
             // don't show other clutter.
-            $('.archiveToggle.show').hide();
+            $('.archiveToggle.show:not(.tb-dont-hide)').hide();
             $('.disconnected').hide();
             $('#addNetwork').hide();
             $('#reorderNetworks.show').hide();
@@ -251,7 +252,7 @@ function main() {
             intId = setInterval(hideInactiveChanns, delay);
             hideInactiveChanns();
         } else {
-            $('.archiveToggle.show').show();
+            $('.archiveToggle.show:not(.tb-dont-hide)').show();
             $('.disconnected').show();
             $('#addNetwork').show();
             $('#reorderNetworks.show').show();
