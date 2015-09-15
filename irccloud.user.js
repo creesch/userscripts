@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.32
+// @version    0.33
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -193,6 +193,9 @@ function main() {
         if (hideInactive) {
             toggleInactive();
         }
+        
+        // DON'T FUCKING DOX ME EVERY TIME I TAKE A SCREENSHOT, ASSHOLES.
+        $('.accountMenu__email').text($('#settingsName').val());
     }, 5000);
 
     $body.on('click', '#tb-select-sticky', function() {
