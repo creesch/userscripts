@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.35
+// @version    0.36
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -149,7 +149,10 @@ function main() {
         var $checkbox = $this.closest('form').find('.markdown');
         if (!$checkbox.length) {
             $this.after('<input type="checkbox" class="markdown" name="markdown" value="markdown" checked>');
-            $this.css('width', 'calc(100% - 13px)');
+            $this.css({
+            	'width': 'calc(100% - 15px)',
+            	'display': 'inline-block'
+            });
         }
 
         $this.on('keydown', function(e) {
