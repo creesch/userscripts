@@ -185,11 +185,11 @@ function main() {
 
     // wait for chann list to load
     setTimeout(function() {
-        $('li.buffer a.buffer').each(function() {
+        $('li.buffer span.buffer').each(function() {
             var $this = $(this),
                 checked = (stickies.indexOf($this.prop('title')) !== -1);
 
-            $this.after('<input type="checkbox" class="tb-sticky-chan" style="display: none"' + (checked ? ' checked' : '') + '/></input>');
+            $this.append('<input type="checkbox" class="tb-sticky-chan" style="display: none"' + (checked ? ' checked' : '') + '/></input>');
         });
 
         $('.accountMenu__items-list:first').append('<li><a href="javascript:;" id="tb-select-sticky">Sticky chans</a></li>');
@@ -233,7 +233,7 @@ function main() {
         $('ul.buffers .active:not(.unread)').each(function() {
             var $this = $(this);
 
-            if (stickies.indexOf($this.find('a.buffer').prop('title')) === -1) {
+            if (stickies.indexOf($this.find('span.buffer').prop('title')) === -1) {
                 $this.hide();
             }
             
