@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.37
+// @version    0.40
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -16,12 +16,13 @@ function main() {
     // CSS STUFFS (that isn't the actual theme) 
 
     $('head').append('<style>\
-                       #buffers li.buffer a.tb-select-sticky, #buffers ul.openArchives.tb-select-sticky {\
-                       display: inline-block;\
-                       width: calc(100%- 30px);\
-                       }\
+						input.tb-sticky-chan {\
+							float: left;\
+							margin-top: 5px;\
+							margin-left: 4px;\
+						}\
                        table.shortcuts th {\
-                       vertical-align: top;\
+							vertical-align: top;\
                        }\
                      </style>');
 
@@ -186,10 +187,11 @@ function main() {
     // wait for chann list to load
     setTimeout(function() {
         $('li.buffer span.buffer').each(function() {
-            var $this = $(this),
-                checked = (stickies.indexOf($this.prop('title')) !== -1);
+            var $this = $(this);
+            var checked = (stickies.indexOf($this.prop('title')) !== -1);
+            
 
-            $this.append('<input type="checkbox" class="tb-sticky-chan" style="display: none"' + (checked ? ' checked' : '') + '/></input>');
+            $this.before('<input type="checkbox" class="tb-sticky-chan" style="display: none" ' + (checked ? 'checked' : ' ') + '/>');
         });
 
         $('.accountMenu__items-list:first').append('<li><a href="javascript:;" id="tb-select-sticky">Sticky chans</a></li>');
@@ -203,26 +205,35 @@ function main() {
 
     $body.on('click', '#tb-select-sticky', function() {
 
-        if ($body.find('.tb-sticky-chan:visible').length) {
-            $('#buffers li.buffer a, #buffers ul.openArchives').removeClass('tb-select-sticky');
-        } else {
-            $('#buffers li.buffer a, #buffers ul.openArchives').addClass('tb-select-sticky');
-        }
 
         $body.find('.tb-sticky-chan').toggle();
     });
 
+	function removeA(arr) {
+    var what, a = arguments, L = a.length, ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax= arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+        }
+    }
+    return arr;
+}
+	
     $body.on('click', '.tb-sticky-chan', function() {
         var $this = $(this),
-            name = $this.prev().attr('title');
-
+            name = $this.next('.buffer').attr('title');
+		console.log(name);
         if ($this.prop('checked')) {
-            stickies.push(name);
+			
+			if($.inArray(name, stickies) === -1) {
+				stickies.push(name);
+			}
+			
+			
         } else {
-            var idx = stickies.indexOf(name);
-            if (idx !== -1) {
-                stickies.splice(idx, 1);
-            }
+			console.log('I am NOT checked');
+			removeA(stickies, name);
         }
 
         localStorage['IRCC.stickies'] = JSON.stringify(stickies);
