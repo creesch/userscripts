@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.40
+// @version    0.41
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -177,8 +177,10 @@ function main() {
     //////// Hide inactive ////////
     var delay = 1000,
         enabled = false,
-        stickies = JSON.parse(localStorage['IRCC.stickies'] || '[]'),
-        hideInactive = JSON.parse(localStorage['IRCC.hideInactive'] || 'false'),
+        STICKY_KEY = 'IET.stickies',
+        HIDDEN_KEY = 'IET.hideInactive',
+        stickies = JSON.parse(localStorage[STICKY_KEY] || '[]'),
+        hideInactive = JSON.parse(localStorage[HIDDEN_KEY] || 'false'),
         STYLE = 'style="padding: 5px 7px 0px 5px;"',
         intId;
 
@@ -186,12 +188,13 @@ function main() {
 
     // wait for chann list to load
     setTimeout(function() {
-        $('li.buffer span.buffer').each(function() {
-            var $this = $(this);
-            var checked = (stickies.indexOf($this.prop('title')) !== -1);
+        $('li.buffer:not(.deferred) span.buffer').each(function() {
+            var $this = $(this),
+                name = $this.prop('title'),
+                network = $this.closest('.connection').find('span.label:first').text();
             
 
-            $this.before('<input type="checkbox" class="tb-sticky-chan" style="display: none" ' + (checked ? 'checked' : ' ') + '/>');
+            $this.before('<input type="checkbox" class="tb-sticky-chan" style="display: none" ' + (IsStickChannel(name, network) ? 'checked' : ' ') + '/>');
         });
 
         $('.accountMenu__items-list:first').append('<li><a href="javascript:;" id="tb-select-sticky">Sticky chans</a></li>');
@@ -209,42 +212,51 @@ function main() {
         $body.find('.tb-sticky-chan').toggle();
     });
 
-	function removeA(arr) {
-    var what, a = arguments, L = a.length, ax;
-    while (L > 1 && arr.length) {
-        what = a[--L];
-        while ((ax= arr.indexOf(what)) !== -1) {
-            arr.splice(ax, 1);
-        }
+    function IsStickChannel(name, network) {
+        var count = stickies.filter(function (sticky) {
+            return sticky.channelName === name && sticky.networkName === network;
+        });
+
+        return (count.length ==! 0);
     }
-    return arr;
-}
-	
+
     $body.on('click', '.tb-sticky-chan', function() {
         var $this = $(this),
-            name = $this.next('.buffer').attr('title');
+            name = $this.next('.buffer').attr('title'),
+            network = $this.closest('.connection').find('span.label:first').text(),
+            networkChannel = {channelName: name, networkName: network};
+            
+            
 		console.log(name);
+        console.log(network);
+        console.log(networkChannel);
+
         if ($this.prop('checked')) {
-			
-			if($.inArray(name, stickies) === -1) {
-				stickies.push(name);
-			}
-			
+            
+			if (!IsStickChannel(name, network)) {
+				stickies.push(networkChannel);
+            }
 			
         } else {
-			console.log('I am NOT checked');
-			removeA(stickies, name);
+            stickies.some(function (sticky, index) {
+                if (sticky.channelName === name && sticky.networkName === network) {
+                    stickies.splice(index, 1);
+                }
+            });
         }
 
-        localStorage['IRCC.stickies'] = JSON.stringify(stickies);
+        localStorage[STICKY_KEY] = JSON.stringify(stickies);
         console.log(stickies);
     });
 
     function hideInactiveChanns() {
-        $('ul.buffers .active:not(.unread)').each(function() {
-            var $this = $(this);
+        $('ul.buffers:not(.deferred) .active:not(.unread)').each(function() {
+            var $this = $(this),
+                name = $this.find('span.buffer').prop('title'),
+                network = $this.closest('.connection').find('span.label:first').text();
+                
 
-            if (stickies.indexOf($this.find('span.buffer').prop('title')) === -1) {
+            if (!IsStickChannel(name, network)) {
                 $this.hide();
             }
             
@@ -281,7 +293,7 @@ function main() {
 
         //save it
         enabled = !enabled;
-        localStorage['IRCC.hideInactive'] = JSON.stringify(enabled);
+        localStorage[HIDDEN_KEY] = JSON.stringify(enabled);
     }
 
     $body.on('click', '.tb-hide-inactive', function() {
@@ -299,7 +311,7 @@ function inject(fn) {
 
         if (has_jquery === false || has_session === false) {
             console.log("[CN] Resources are not ready...");
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 waitloop(fn);
             }, 100);
             return;
