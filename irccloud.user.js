@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.41
+// @version    0.42
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -26,7 +26,7 @@ function main() {
                        }\
                      </style>');
 
-	// ADD HTML STUFFS
+    // ADD HTML STUFFS
     $body.find('.shortcuts').before('<table class="shortcuts">\
     <tbody>\
         <tr class="heading">\
@@ -84,9 +84,8 @@ function main() {
 </table>');
 
 
-
     //////// subreddit and user linking ////////
-    $(document).on('DOMNodeInserted', function(e) {
+    $(document).on('DOMNodeInserted', function (e) {
         $('#limits').remove(); //because it gets replaced every time.
 
         var element = e.target,
@@ -106,8 +105,8 @@ function main() {
     });
 
     // when changing channels also insert /u/ and /r/ links as well as dismissing the read buffer.
-    $body.on('click', 'li.buffer', function() {
-        $('.content').each(function() {
+    $body.on('click', 'li.buffer', function () {
+        $('.content').each(function () {
             if (!$(this).hasClass('userscript')) {
                 var content = $(this).html();
 
@@ -123,14 +122,14 @@ function main() {
 
     //////// irc markdown ////////
     /*
-	***bold italic***
-	**bold**
-	*italic*
-	~underline~
-	^03color^  <--The number is a color code (user 00 till 15)
-	^03,06colorbackground^ <-- same as above but with a background 
-    */
-    $body.on('keyup', function(e) {
+     ***bold italic***
+     **bold**
+     *italic*
+     ~underline~
+     ^03color^  <--The number is a color code (user 00 till 15)
+     ^03,06colorbackground^ <-- same as above but with a background
+     */
+    $body.on('keyup', function (e) {
         $checkbox = $body.find('.markdown:visible');
         var checkboxChecked = $body.find('.markdown:visible:checked').length;
 
@@ -145,18 +144,18 @@ function main() {
         }
     });
 
-    $body.delegate('[id^=bufferInputView]:visible', 'click', function() {
+    $body.delegate('[id^=bufferInputView]:visible', 'click', function () {
         var $this = $(this);
         var $checkbox = $this.closest('form').find('.markdown');
         if (!$checkbox.length) {
             $this.after('<input type="checkbox" class="markdown" name="markdown" value="markdown" checked>');
             $this.css({
-            	'width': 'calc(100% - 15px)',
-            	'display': 'inline-block'
+                'width': 'calc(100% - 15px)',
+                'display': 'inline-block'
             });
         }
 
-        $this.on('keydown', function(e) {
+        $this.on('keydown', function (e) {
             var checkboxChecked = $body.find('.markdown:visible:checked').length;
             //console.log(checkboxChecked);
             //console.log(e);
@@ -184,15 +183,15 @@ function main() {
         STYLE = 'style="padding: 5px 7px 0px 5px;"',
         intId;
 
-    $('#sidebar').prepend('<ul class="bufferList" '+ STYLE +'><p class="archiveToggle show tb-dont-hide" style="display: block;"><button class="tb-hide-inactive">hide inactive</button></p></ul>');
+    $('#sidebar').prepend('<ul class="bufferList" ' + STYLE + '><p class="archiveToggle show tb-dont-hide" style="display: block;"><button class="tb-hide-inactive">hide inactive</button></p></ul>');
 
     // wait for chann list to load
-    setTimeout(function() {
-        $('li.buffer:not(.deferred) span.buffer').each(function() {
+    setTimeout(function () {
+        $('li.buffer:not(.deferred) span.buffer').each(function () {
             var $this = $(this),
                 name = $this.prop('title'),
                 network = $this.closest('.connection').find('span.label:first').text();
-            
+
 
             $this.before('<input type="checkbox" class="tb-sticky-chan" style="display: none" ' + (IsStickChannel(name, network) ? 'checked' : ' ') + '/>');
         });
@@ -201,14 +200,12 @@ function main() {
         if (hideInactive) {
             toggleInactive();
         }
-        
+
         // DON'T FUCKING DOX ME EVERY TIME I TAKE A SCREENSHOT, ASSHOLES.
         $('.accountMenu__email').text($('#settingsName').val());
     }, 5000);
 
-    $body.on('click', '#tb-select-sticky', function() {
-
-
+    $body.on('click', '#tb-select-sticky', function () {
         $body.find('.tb-sticky-chan').toggle();
     });
 
@@ -217,26 +214,26 @@ function main() {
             return sticky.channelName === name && sticky.networkName === network;
         });
 
-        return (count.length ==! 0);
+        return (count.length == !0);
     }
 
-    $body.on('click', '.tb-sticky-chan', function() {
+    $body.on('click', '.tb-sticky-chan', function () {
         var $this = $(this),
             name = $this.next('.buffer').attr('title'),
             network = $this.closest('.connection').find('span.label:first').text(),
             networkChannel = {channelName: name, networkName: network};
-            
-            
-		console.log(name);
+
+
+        console.log(name);
         console.log(network);
         console.log(networkChannel);
 
         if ($this.prop('checked')) {
-            
-			if (!IsStickChannel(name, network)) {
-				stickies.push(networkChannel);
+
+            if (!IsStickChannel(name, network)) {
+                stickies.push(networkChannel);
             }
-			
+
         } else {
             stickies.some(function (sticky, index) {
                 if (sticky.channelName === name && sticky.networkName === network) {
@@ -250,16 +247,16 @@ function main() {
     });
 
     function hideInactiveChanns() {
-        $('ul.buffers:not(.deferred) .active:not(.unread)').each(function() {
+        $('ul.buffers:not(.deferred) .active:not(.unread)').each(function () {
             var $this = $(this),
                 name = $this.find('span.buffer').prop('title'),
                 network = $this.closest('.connection').find('span.label:first').text();
-                
+
 
             if (!IsStickChannel(name, network)) {
                 $this.hide();
             }
-            
+
             if ($this.hasClass('activeBadge')) $this.show();
         });
 
@@ -296,7 +293,7 @@ function main() {
         localStorage[HIDDEN_KEY] = JSON.stringify(enabled);
     }
 
-    $body.on('click', '.tb-hide-inactive', function() {
+    $body.on('click', '.tb-hide-inactive', function () {
         toggleInactive();
     });
 }
