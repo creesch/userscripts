@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.42
+// @version    0.50
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
