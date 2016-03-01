@@ -12,7 +12,17 @@
 function main() {
     var $body = $('body');
 
-
+    jQuery.fn.scrollTo = function(elem) { 
+        $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top-50); 
+        return this; 
+    };
+    
+    
+    function escapeHTML(html) {
+        //create a in-memory div, set it's inner text(which jQuery automatically encodes)
+        //then grab the encoded contents back out.  The div never exists on the page.
+        return $('<div/>').text(html).html();
+    };
     // CSS STUFFS (that isn't the actual theme) 
 
     $('head').append('<style>\
@@ -24,6 +34,23 @@ function main() {
                        table.shortcuts th {\
 							vertical-align: top;\
                        }\
+                       div#tb-pingmenu {\
+                            display: none;\
+                            top: 40px;\
+                            bottom: inherit;\
+                            left: inherit;\
+                            right: 10px;\
+                            width: initial;\
+                            padding: 5px;\
+                        }\
+                        a.tb-ping-count {\
+                            margin-left: 7px;\
+                            font-weight: bold;\
+                        }\
+                        div#tb-pingmenu li:hover {\
+                            text-decoration: underline;\
+                            cursor: pointer;\
+                        } \
                      </style>');
 
     // ADD HTML STUFFS
@@ -85,6 +112,8 @@ function main() {
 
 
     //////// subreddit and user linking ////////
+    // NOW ALSO WITH PING BACKLOG
+    var pingLog = {};
     $(document).on('DOMNodeInserted', function (e) {
         $('#limits').remove(); //because it gets replaced every time.
 
@@ -97,24 +126,149 @@ function main() {
 
         var content = $element.find('.content').html();
         if (content) {
+            
+            $contentLine = $element.find('.content');
             var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+            
+            if($element.hasClass('highlight')) {
+                
+                var highlightChannel = $element.closest('.buffercontainer').find('.bufferlabel').text();
+                var highlightText = $element.text();
+                var highlightID = $element.attr('id');
+                var highlightTime = $element.attr('data-time');
+                //console.log('highlight: ' + highlightText);
 
-            $element.find('.content').html(newcontent);
-            $element.find('.content').addClass('userscript');
+                if(!pingLog.hasOwnProperty(highlightChannel)) {
+                    pingLog[highlightChannel] = [];
+                }
+                pingLog[highlightChannel].push({
+                    id: highlightID , 
+                    text: escapeHTML(highlightText),
+                    time: highlightTime
+                    });
+                
+                var $pingCount = $element.closest('.buffercontainer').find('.tb-ping-count span');
+                var pingValue = $pingCount.text();
+                $pingCount.text(parseInt(pingValue,10)+1);
+                //console.log(pingLog);
+                
+            }
+            $contentLine.html(newcontent);
+            $contentLine.addClass('userscript');
         }
     });
 
     // when changing channels also insert /u/ and /r/ links as well as dismissing the read buffer.
-    $body.on('click', 'li.buffer', function () {
+    // Also do more line stuff
+    function doLineStuff() {   
+        
+        if(!$('.buffercontainer:not(.buffercontainer--hidden)').find('.tb-ping-count').length) {        
+            $('.buffercontainer:not(.buffercontainer--hidden) .bufferstatus .status .buttons').append('<a href="javascript:;" class="tb-ping-count"><i class="tb-ping-icon">!</i><span>0</span></a>');
+        }
         $('.content').each(function () {
-            if (!$(this).hasClass('userscript')) {
-                var content = $(this).html();
+            var $this = $(this);
+            if (!$this.hasClass('userscript')) {
+                var content = $this.html();
 
                 var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
-                $(this).addClass('userscript');
-                $(this).html(newcontent);
+                
+                // Let's log highlights
+                if($this.closest('.type_buffer_msg').hasClass('highlight')) {
+                   
+                    var highlightChannel = $this.closest('.buffercontainer').find('.bufferlabel').text();
+                    var highlightText = $this.closest('.type_buffer_msg').text();
+                    var highlightID = $this.closest('.type_buffer_msg').attr('id');
+                    var highlightTime = $this.closest('.type_buffer_msg').attr('data-time');
+                    //console.log('highlight: ' + highlightText);
+
+                    if(!pingLog.hasOwnProperty(highlightChannel)) {
+                        pingLog[highlightChannel] = [];
+                    }
+                    
+                    pingLog[highlightChannel].push({
+                        id: highlightID , 
+                        text: escapeHTML(highlightText),
+                        time: highlightTime
+                        });
+                    //console.log(pingLog);
+                    
+                    
+                    var $pingCount = $this.closest('.buffercontainer').find('.tb-ping-count span');
+                    var pingValue = $pingCount.text();
+                    $pingCount.text(parseInt(pingValue,10)+1);
+                    }
+                $this.addClass('userscript');
+                $this.html(newcontent);
             }
         });
+    }
+    
+    // Let's wait for the bufferstuff to be ready.
+    function waitForBufferReady() {
+        
+    
+        if ($('#buffersContainer').is(":visible")) {
+            doLineStuff();
+            $('#container').append('<div id="tb-pingmenu" class="contextMenu"> NONE YOU ARE NOT POPULAR! </div>');
+        } else {
+            console.log("[CN] BufferContainer is not ready...");
+            window.setTimeout(function () {
+                waitForBufferReady();
+            }, 100);
+        }
+    }
+    waitForBufferReady();
+    
+    $body.on('click', 'a.tb-ping-count', function(e) {
+        var $this = $(this);
+        var channelName = $this.closest('.bufferstatus').find('.label').text(); 
+        var $pingMenu = $body.find('#tb-pingmenu');
+        
+        if(pingLog.hasOwnProperty(channelName)) {
+            var pinglist = pingLog[channelName];
+            
+            function compareTime(a,b) {
+              if (a.time < b.time)
+                return -1;
+              else if (a.time> b.time)
+                return 1;
+              else 
+                return 0;
+            }
+            
+            pinglist.sort(compareTime);
+            $pingMenu.html('<ul></ul>');
+            $.each(pinglist, function(key, val) {
+                $pingMenu.append('<li data-lineID="' + val.id + '">' + val.text + '</li>');
+            //console.log(val); 
+        });
+        } else {
+            $pingMenu.text('NONE YOU ARE NOT POPULAR!');
+        }
+
+        
+        // Silly, but keeps the buffer from expanding or contracting as e.stopPropagation() doesn't work. 
+        $this.closest('.status').click();
+
+
+        if ($pingMenu.is(":visible")) {
+            $pingMenu.hide();
+        } else {
+            $pingMenu.show();
+        }
+        
+    });
+    
+    $body.on('click', '#tb-pingmenu li', function(e) {
+        $body.find('#tb-pingmenu').hide();
+        var scrollToId = $(this).attr('data-lineid'); 
+        $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo('#'+scrollToId);
+    });
+    
+        
+    $body.on('click', 'li.buffer', function () {
+        $body.find('#tb-pingmenu').hide();
+        doLineStuff();
 
         $('table.buffer').filter(':visible').find('.extrasDismiss.bufferAboveExtrasDismiss').click();
     });
