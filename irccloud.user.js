@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.50
+// @version    0.51
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -263,6 +263,7 @@ function main() {
         $body.find('#tb-pingmenu').hide();
         var scrollToId = $(this).attr('data-lineid'); 
         $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo('#'+scrollToId);
+        $('#'+scrollToId).fadeOut(1000).fadeIn(1000);
     });
     
         
