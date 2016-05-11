@@ -12,12 +12,12 @@
 function main() {
     var $body = $('body');
 
-    jQuery.fn.scrollTo = function(elem) { 
-        $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top-50); 
-        return this; 
+    jQuery.fn.scrollTo = function (elem) {
+        $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top - 50);
+        return this;
     };
-    
-    
+
+
     function escapeHTML(html) {
         //create a in-memory div, set it's inner text(which jQuery automatically encodes)
         //then grab the encoded contents back out.  The div never exists on the page.
@@ -126,32 +126,32 @@ function main() {
 
         var content = $element.find('.content').html();
         if (content) {
-            
+
             $contentLine = $element.find('.content');
             var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
-            
-            if($element.hasClass('highlight')) {
-                
+
+            if ($element.hasClass('highlight')) {
+
                 var highlightChannel = $element.closest('.buffercontainer').find('.bufferlabel').text();
                 var highlightText = $element.text();
                 var highlightID = $element.attr('id');
                 var highlightTime = $element.attr('data-time');
                 //console.log('highlight: ' + highlightText);
 
-                if(!pingLog.hasOwnProperty(highlightChannel)) {
+                if (!pingLog.hasOwnProperty(highlightChannel)) {
                     pingLog[highlightChannel] = [];
                 }
                 pingLog[highlightChannel].push({
-                    id: highlightID , 
+                    id: highlightID,
                     text: escapeHTML(highlightText),
                     time: highlightTime
-                    });
-                
+                });
+
                 var $pingCount = $element.closest('.buffercontainer').find('.tb-ping-count span');
                 var pingValue = $pingCount.text();
-                $pingCount.text(parseInt(pingValue,10)+1);
+                $pingCount.text(parseInt(pingValue, 10) + 1);
                 //console.log(pingLog);
-                
+
             }
             $contentLine.html(newcontent);
             $contentLine.addClass('userscript');
@@ -160,9 +160,9 @@ function main() {
 
     // when changing channels also insert /u/ and /r/ links as well as dismissing the read buffer.
     // Also do more line stuff
-    function doLineStuff() {   
-        
-        if(!$('.buffercontainer:not(.buffercontainer--hidden)').find('.tb-ping-count').length) {        
+    function doLineStuff() {
+
+        if (!$('.buffercontainer:not(.buffercontainer--hidden)').find('.tb-ping-count').length) {
             $('.buffercontainer:not(.buffercontainer--hidden) .bufferstatus .status .buttons').append('<a href="javascript:;" class="tb-ping-count"><i class="tb-ping-icon">!</i><span>0</span></a>');
         }
         $('.content').each(function () {
@@ -171,42 +171,42 @@ function main() {
                 var content = $this.html();
 
                 var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
-                
+
                 // Let's log highlights
-                if($this.closest('.type_buffer_msg').hasClass('highlight')) {
-                   
+                if ($this.closest('.type_buffer_msg').hasClass('highlight')) {
+
                     var highlightChannel = $this.closest('.buffercontainer').find('.bufferlabel').text();
                     var highlightText = $this.closest('.type_buffer_msg').text();
                     var highlightID = $this.closest('.type_buffer_msg').attr('id');
                     var highlightTime = $this.closest('.type_buffer_msg').attr('data-time');
                     //console.log('highlight: ' + highlightText);
 
-                    if(!pingLog.hasOwnProperty(highlightChannel)) {
+                    if (!pingLog.hasOwnProperty(highlightChannel)) {
                         pingLog[highlightChannel] = [];
                     }
-                    
+
                     pingLog[highlightChannel].push({
-                        id: highlightID , 
+                        id: highlightID,
                         text: escapeHTML(highlightText),
                         time: highlightTime
-                        });
+                    });
                     //console.log(pingLog);
-                    
-                    
+
+
                     var $pingCount = $this.closest('.buffercontainer').find('.tb-ping-count span');
                     var pingValue = $pingCount.text();
-                    $pingCount.text(parseInt(pingValue,10)+1);
-                    }
+                    $pingCount.text(parseInt(pingValue, 10) + 1);
+                }
                 $this.addClass('userscript');
                 $this.html(newcontent);
             }
         });
     }
-    
+
     // Let's wait for the bufferstuff to be ready.
     function waitForBufferReady() {
-        
-    
+
+
         if ($('#buffersContainer').is(":visible")) {
             doLineStuff();
             $('#container').append('<div id="tb-pingmenu" class="contextMenu"> NONE YOU ARE NOT POPULAR! </div>');
@@ -217,36 +217,37 @@ function main() {
             }, 100);
         }
     }
+
     waitForBufferReady();
-    
-    $body.on('click', 'a.tb-ping-count', function(e) {
+
+    $body.on('click', 'a.tb-ping-count', function (e) {
         var $this = $(this);
-        var channelName = $this.closest('.bufferstatus').find('.label').text(); 
+        var channelName = $this.closest('.bufferstatus').find('.label').text();
         var $pingMenu = $body.find('#tb-pingmenu');
-        
-        if(pingLog.hasOwnProperty(channelName)) {
+
+        if (pingLog.hasOwnProperty(channelName)) {
             var pinglist = pingLog[channelName];
-            
-            function compareTime(a,b) {
-              if (a.time < b.time)
-                return -1;
-              else if (a.time> b.time)
-                return 1;
-              else 
-                return 0;
+
+            function compareTime(a, b) {
+                if (a.time < b.time)
+                    return -1;
+                else if (a.time > b.time)
+                    return 1;
+                else
+                    return 0;
             }
-            
+
             pinglist.sort(compareTime);
             $pingMenu.html('<ul></ul>');
-            $.each(pinglist, function(key, val) {
+            $.each(pinglist, function (key, val) {
                 $pingMenu.append('<li data-lineID="' + val.id + '">' + val.text + '</li>');
-            //console.log(val); 
-        });
+                //console.log(val);
+            });
         } else {
             $pingMenu.text('NONE YOU ARE NOT POPULAR!');
         }
 
-        
+
         // Silly, but keeps the buffer from expanding or contracting as e.stopPropagation() doesn't work. 
         $this.closest('.status').click();
 
@@ -256,17 +257,17 @@ function main() {
         } else {
             $pingMenu.show();
         }
-        
+
     });
-    
-    $body.on('click', '#tb-pingmenu li', function(e) {
+
+    $body.on('click', '#tb-pingmenu li', function (e) {
         $body.find('#tb-pingmenu').hide();
-        var scrollToId = $(this).attr('data-lineid'); 
-        $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo('#'+scrollToId);
-        $('#'+scrollToId).fadeOut(1000).fadeIn(1000);
+        var scrollToId = $(this).attr('data-lineid');
+        $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo('#' + scrollToId);
+        $('#' + scrollToId).fadeOut(1000).fadeIn(1000);
     });
-    
-        
+
+
     $body.on('click', 'li.buffer', function () {
         $body.find('#tb-pingmenu').hide();
         doLineStuff();
