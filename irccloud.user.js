@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.51
+// @version    0.52
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -128,7 +128,7 @@ function main() {
         if (content) {
 
             $contentLine = $element.find('.content');
-            var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+            var newcontent = content.replace(/(?:^|[^\w])((\/?)(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com/$1" target="_blank">$1</a>');
 
             if ($element.hasClass('highlight')) {
 
@@ -169,8 +169,7 @@ function main() {
             var $this = $(this);
             if (!$this.hasClass('userscript')) {
                 var content = $this.html();
-
-                var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+                var newcontent = content.replace(/(?:^|[^\w])((\/?)(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com/$1" target="_blank">$1</a>');
 
                 // Let's log highlights
                 if ($this.closest('.type_buffer_msg').hasClass('highlight')) {
