@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.60
+// @version    0.61
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -23,7 +23,7 @@ function main() {
         //then grab the encoded contents back out.  The div never exists on the page.
         return $('<div/>').text(html).html();
     };
-    // CSS STUFFS (that isn't the actual theme) 
+    // CSS STUFFS (that isn't the actual theme)
 
     $('head').append('<style>\
 						input.tb-sticky-chan {\
@@ -128,7 +128,7 @@ function main() {
         if (content) {
 
             $contentLine = $element.find('.content');
-            var newcontent = content.replace(/(?:^|[^\w])((\/?)(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com/$1" target="_blank">$1</a>').replace('.com//', '.com/');
+            var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
 
             if ($element.hasClass('highlight')) {
 
@@ -169,7 +169,8 @@ function main() {
             var $this = $(this);
             if (!$this.hasClass('userscript')) {
                 var content = $this.html();
-                var newcontent = content.replace(/(?:^|[^\w])((\/?)(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com/$1" target="_blank">$1</a>').replace('.com//', '.com/');
+
+                var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
 
                 // Let's log highlights
                 if ($this.closest('.type_buffer_msg').hasClass('highlight')) {
