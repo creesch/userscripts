@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.61
+// @version    0.70
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -17,6 +17,70 @@ function main() {
         return this;
     };
 
+//
+//
+//
+// Do not remove the colored nick stuff, needed for stuff inserted later on. 
+// The /r/history mod room is linked with discord through a bot. Some of the stuff below makes that look less ugly.
+//
+//
+    function clean_nick(nick) {
+        // attempts to clean up a nickname
+        // by removing alternate characters from the end
+        // nc_ becomes nc, avidal` becomes avidal
+
+        nick = nick.toLowerCase();
+
+        // typically ` and _ are used on the end alone
+        nick = nick.replace(/[`_]+$/, '');
+
+        // remove |<anything> from the end
+        nick = nick.replace(/|.*$/, '');
+
+        return nick;
+    }
+
+    function hash(nick) {
+        var cleaned = clean_nick(nick);
+        var h = 0;
+
+        for(var i = 0; i < cleaned.length; i++) {
+            h = cleaned.charCodeAt(i) + (h << 6) + (h << 16) - h;
+        }
+
+        return h;
+
+    }
+
+
+    function get_color(nick) {
+        var nickhash = hash(nick);
+
+        // get a positive value for the hue
+        var deg = nickhash % 360;
+        var h = deg < 0 ? 360 + deg : deg;
+
+        // default L is 50
+        var l = 50;
+
+        // half of the hues are too light, for those we
+        // decrease lightness
+        if(h >= 30 && h <= 210) {
+            l = 30;
+        }
+
+        // keep saturation above 20
+        var s = 20 + Math.abs(nickhash) % 80;
+
+        return "hsl(" + h + "," + s + "%," + l + "%)";
+
+    }
+    
+    var discordLogo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAANlBMVEUAAAD///////////////////////////////////////////////////////////////8AAADx3eDuAAAAEXRSTlMABAIDAQsMDQ4REAoPBgUHCM7XMEMAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAAcElEQVQY041PRw6AMAxLV0YH5P+vxSkgccSHyHEdyyX6hZRjlvSstTUWVWHmugW1B910++2DuBpfYUCYZnMx+ALTSuU2WidaoMeeI4IKNdCTHL43QePtMBOXHqsjaaGg2ES7GvFSokh2vyu75z8fvQBvOATdxBiIWAAAAABJRU5ErkJggg==';
+//
+//
+//
+//
 
     function escapeHTML(html) {
         //create a in-memory div, set it's inner text(which jQuery automatically encodes)
@@ -127,6 +191,19 @@ function main() {
         var content = $element.find('.content').html();
         if (content) {
 
+            if ($element.attr('data-user') === 'h_d') {
+                //console.log(content);
+                var userDiscordName = content.match(/^&lt;(.*?)&gt;/)[1];
+                var $userDiscordName = $(userDiscordName);
+                $userDiscordName.addClass('buffer bufferLink author user');
+                $userDiscordName.prepend('<img style="vertical-align:text-top" src="'+ discordLogo + '">&nbsp;');
+                $userDiscordName.css('color', get_color($userDiscordName.text()));
+
+                content = content.replace(/^(&lt;.*?&gt; ?)/, '');
+
+                $element.find('.authorWrap .author').replaceWith($userDiscordName);
+                
+            }
             $contentLine = $element.find('.content');
             var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
 
@@ -165,15 +242,34 @@ function main() {
         if (!$('.buffercontainer:not(.buffercontainer--hidden)').find('.tb-ping-count').length) {
             $('.buffercontainer:not(.buffercontainer--hidden) .bufferstatus .status .buttons').append('<a href="javascript:;" class="tb-ping-count"><i class="tb-ping-icon">!</i><span>0</span></a>');
         }
-        $('.content').each(function () {
+        $('.type_buffer_msg.chat').each(function () {
             var $this = $(this);
-            if (!$this.hasClass('userscript')) {
-                var content = $this.html();
+            var $thisContent = $this.find('.content');
+            // console.log($thisContent);
+            var content = $thisContent.html();
+            if (!$this.hasClass('userscript') && content) {
+                
+                
+                if ($this.attr('data-user') === 'h_d') {
+                    //console.log(content);
+                    var userDiscordName = content.match(/^&lt;(.*?)&gt;/)[1];
+                    var $userDiscordName = $(userDiscordName);
+                    $userDiscordName.addClass('buffer bufferLink author user');
+                    $userDiscordName.prepend('<img style="vertical-align:text-top" src="'+ discordLogo + '">&nbsp;');
+                    $userDiscordName.css('color', get_color($userDiscordName.text()));
+
+                    content = content.replace(/^(&lt;.*?&gt; ?)/, '');
+
+                    $this.find('.authorWrap .author').replaceWith($userDiscordName);
+                    
+                }
+                
+                
 
                 var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
 
                 // Let's log highlights
-                if ($this.closest('.type_buffer_msg').hasClass('highlight')) {
+                if ($thisContent.closest('.type_buffer_msg').hasClass('highlight')) {
 
                     var highlightChannel = $this.closest('.buffercontainer').find('.bufferlabel').text();
                     var highlightText = $this.closest('.type_buffer_msg').text();
@@ -198,7 +294,7 @@ function main() {
                     $pingCount.text(parseInt(pingValue, 10) + 1);
                 }
                 $this.addClass('userscript');
-                $this.html(newcontent);
+                $thisContent.html(newcontent);
             }
         });
     }
