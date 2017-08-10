@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       irccloud enhancement toolbox
 // @namespace  http://www.reddit.com/r/creesch
-// @version    0.70
+// @version    0.80
 // @description  do stuff on irccloud!
 // @match      http://*.irccloud.com/*
 // @match      https://*.irccloud.com/*
@@ -17,13 +17,22 @@ function main() {
         return this;
     };
 
-//
-//
-//
-// Do not remove the colored nick stuff, needed for stuff inserted later on. 
-// The /r/history mod room is linked with discord through a bot. Some of the stuff below makes that look less ugly.
-//
-//
+
+    function compareTime(a, b) {
+        if (a.time < b.time)
+            return -1;
+        else if (a.time > b.time)
+            return 1;
+        else
+            return 0;
+    }
+    //
+    //
+    //
+    // Do not remove the colored nick stuff, needed for stuff inserted later on.
+    // The /r/history mod room is linked with discord through a bot. Some of the stuff below makes that look less ugly.
+    //
+    //
     function clean_nick(nick) {
         // attempts to clean up a nickname
         // by removing alternate characters from the end
@@ -72,107 +81,114 @@ function main() {
         // keep saturation above 20
         var s = 20 + Math.abs(nickhash) % 80;
 
-        return "hsl(" + h + "," + s + "%," + l + "%)";
+        return `hsl(${h},${s}%,${l}%)`;
 
     }
-    
+
     var discordLogo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAANlBMVEUAAAD///////////////////////////////////////////////////////////////8AAADx3eDuAAAAEXRSTlMABAIDAQsMDQ4REAoPBgUHCM7XMEMAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAAcElEQVQY041PRw6AMAxLV0YH5P+vxSkgccSHyHEdyyX6hZRjlvSstTUWVWHmugW1B910++2DuBpfYUCYZnMx+ALTSuU2WidaoMeeI4IKNdCTHL43QePtMBOXHqsjaaGg2ES7GvFSokh2vyu75z8fvQBvOATdxBiIWAAAAABJRU5ErkJggg==';
-//
-//
-//
-//
+    //
+    //
+    //
+    //
 
     function escapeHTML(html) {
         //create a in-memory div, set it's inner text(which jQuery automatically encodes)
         //then grab the encoded contents back out.  The div never exists on the page.
         return $('<div/>').text(html).html();
-    };
+    }
     // CSS STUFFS (that isn't the actual theme)
 
-    $('head').append('<style>\
-						input.tb-sticky-chan {\
-							float: left;\
-							margin-top: 5px;\
-							margin-left: 4px;\
-						}\
-                       table.shortcuts th {\
-							vertical-align: top;\
-                       }\
-                       div#tb-pingmenu {\
-                            display: none;\
-                            top: 40px;\
-                            bottom: inherit;\
-                            left: inherit;\
-                            right: 10px;\
-                            width: initial;\
-                            padding: 5px;\
-                        }\
-                        a.tb-ping-count {\
-                            margin-left: 7px;\
-                            font-weight: bold;\
-                        }\
-                        div#tb-pingmenu li:hover {\
-                            text-decoration: underline;\
-                            cursor: pointer;\
-                        } \
-                     </style>');
+    $('head').append(`<style>
+						input.tb-sticky-chan {
+							float: left;
+							margin-top: 5px;
+							margin-left: 4px;
+						}
+                       table.shortcuts th {
+							vertical-align: top;
+                       }
+                       div#tb-pingmenu {
+                            display: none;
+                            top: 40px;
+                            bottom: inherit;
+                            left: inherit;
+                            right: 10px;
+                            width: initial;
+                            padding: 5px;
+                        }
+                        a.tb-ping-count {
+                            margin-left: 7px;
+                            font-weight: bold;
+                        }
+                        div#tb-pingmenu li:hover {
+                            text-decoration: underline;
+                            cursor: pointer;
+                        }
+                        span.content .code-block {
+                            border: solid 1px #545454;
+                            padding: 2px;
+                            color: gray;
+                            display: inline-block;
+                            width: 98%;
+                        }
+                     </style>`);
 
     // ADD HTML STUFFS
-    $body.find('.shortcuts').before('<table class="shortcuts">\
-    <tbody>\
-        <tr class="heading">\
-               <th>Script stuffs!</th>\
-               <td></td>\
-        </tr>\
-        <tr>\
-            <th><kbd>&lt;Ctrl&gt;</kbd> + <kbd>Q</kbd></th>\
-            <td>Turn markdown on or off</td>\
-        </tr>\
-        <tr>\
-            <th><kbd>*italic*</kbd></th>\
-            <td>Makes stuff <i>italic</i></td>\
-        </tr>\
-        <tr>\
-            <th><kbd>**bold**</kbd></th>\
-            <td>Makes stuff <b>bold</b></td>\
-        </tr>\
-        <tr>\
-            <th><kbd>~underline~</kbd></th>\
-            <td>Makes stuff <u>underlined</u></td>\
-        </tr>\
-        <tr>\
-            <th><kbd>^03color^ </kbd></th>\
-            <td>The number is a color code </td>\
-        </tr>\
-        <tr>\
-            <th><kbd>^03,06colorbackground^</kbd></th>\
-            <td>same as above but with a background</td>\
-        </tr>\
-        <tr>\
-            <th><kbd>color codes</kbd></th>\
-            <td>\
-                <ol start="0" style="list-style-type: decimal-leading-zero; margin-left: 45px;">\
-                    <li style="color: #FFF; background-color: #000;">White</li>\
-                    <li style="color: #000;">Black</li>\
-                    <li style="color: #000080;">Blue (Navy)</li>\
-                    <li style="color: #008000;">Green</li>\
-                    <li style="color: #F00;">Red</li>\
-                    <li style="color: #A52A2A;">Brown (Maroon)</li>\
-                    <li style="color: #800080;">Purple</li>\
-                    <li style="color: #FFA500;">Orange</li>\
-                    <li style="color: #FFA500;">Yellow</li>\
-                    <li style="color: #0F0;">Light Green (Lime)</li>\
-                    <li style="color: #008080;">Teal (Green/Blue Cyan)</li>\
-                    <li style="color: #0FF;">Light Cyan (Cyan) (Aqua)</li>\
-                    <li style="color: #00F;">Light Blue (Royal)</li>\
-                    <li style="color: #F0F;">Pink (Light Purple) (Fuchsia)</li>\
-                    <li style="color: #808080;">Grey</li>\
-                    <li style="color: #C0C0C0;">Light Grey (Silver)</li>\
-                </ol>\
-            </td>\
-        </tr>\
-    </tbody>\
-</table>');
+    $body.find('.shortcuts').before(`<table class="shortcuts">
+    <tbody>
+        <tr class="heading">
+               <th>Script stuffs!</th>
+               <td></td>
+        </tr>
+        <tr>
+            <th><kbd>&lt;Ctrl&gt;</kbd> + <kbd>Q</kbd></th>
+            <td>Turn markdown on or off</td>
+        </tr>
+        <tr>
+            <th><kbd>*italic*</kbd></th>
+            <td>Makes stuff <i>italic</i></td>
+        </tr>
+        <tr>
+            <th><kbd>**bold**</kbd></th>
+            <td>Makes stuff <b>bold</b></td>
+        </tr>
+        <tr>
+            <th><kbd>~underline~</kbd></th>
+            <td>Makes stuff <u>underlined</u></td>
+        </tr>
+        <tr>
+            <th><kbd>^03color^ </kbd></th>
+            <td>The number is a color code </td>
+        </tr>
+        <tr>
+            <th><kbd>^03,06colorbackground^</kbd></th>
+            <td>same as above but with a background</td>
+        </tr>
+        <tr>
+            <th><kbd>color codes</kbd></th>
+            <td>
+                <ol start="0" style="list-style-type: decimal-leading-zero; margin-left: 45px;">
+                    <li style="color: #FFF; background-color: #000;">White</li>
+                    <li style="color: #000;">Black</li>
+                    <li style="color: #000080;">Blue (Navy)</li>
+                    <li style="color: #008000;">Green</li>
+                    <li style="color: #F00;">Red</li>
+                    <li style="color: #A52A2A;">Brown (Maroon)</li>
+                    <li style="color: #800080;">Purple</li>
+                    <li style="color: #FFA500;">Orange</li>
+                    <li style="color: #FFA500;">Yellow</li>
+                    <li style="color: #0F0;">Light Green (Lime)</li>
+                    <li style="color: #008080;">Teal (Green/Blue Cyan)</li>
+                    <li style="color: #0FF;">Light Cyan (Cyan) (Aqua)</li>
+                    <li style="color: #00F;">Light Blue (Royal)</li>
+                    <li style="color: #F0F;">Pink (Light Purple) (Fuchsia)</li>
+                    <li style="color: #808080;">Grey</li>
+                    <li style="color: #C0C0C0;">Light Grey (Silver)</li>
+                </ol>
+            </td>
+        </tr>
+    </tbody>
+</table>`);
 
 
     //////// subreddit and user linking ////////
@@ -191,22 +207,32 @@ function main() {
         var content = $element.find('.content').html();
         if (content) {
 
-            if ($element.attr('data-user') === 'h_d') {
+            if ($element.attr('data-name') === 'h_d') {
                 //console.log(content);
                 var userDiscordName = content.match(/^&lt;(.*?)&gt;/)[1];
                 var $userDiscordName = $(userDiscordName);
                 $userDiscordName.addClass('buffer bufferLink author user');
-                $userDiscordName.prepend('<img style="vertical-align:text-top" src="'+ discordLogo + '">&nbsp;');
+                $userDiscordName.prepend(`<img style="vertical-align:text-top" src="${discordLogo}">&nbsp;`);
                 $userDiscordName.css('color', get_color($userDiscordName.text()));
 
                 content = content.replace(/^(&lt;.*?&gt; ?)/, '');
 
                 $element.find('.authorWrap .author').replaceWith($userDiscordName);
-                
-            }
-            $contentLine = $element.find('.content');
-            var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
 
+            }
+            let $contentLine = $element.find('.content');
+
+            $element.find('.content').contents().filter(function() {
+                return this.nodeType == 3;
+            }).each(function(){
+                var $this = $(this);
+                const thistextContent = $(this).text().replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+                const $replaceNode = $(`<span>${thistextContent}</span>`);
+                $this.replaceWith($replaceNode);
+            });
+
+            //var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+            //newcontent = newcontent.replace(/```(.*?)```/g, '<div class="code-block"><code>$1</code></div>');
             if ($element.hasClass('highlight')) {
 
                 var highlightChannel = $element.closest('.buffercontainer').find('.bufferlabel').text();
@@ -230,8 +256,10 @@ function main() {
                 //console.log(pingLog);
 
             }
-            $contentLine.html(newcontent);
+
             $contentLine.addClass('userscript');
+
+
         }
     });
 
@@ -248,25 +276,32 @@ function main() {
             // console.log($thisContent);
             var content = $thisContent.html();
             if (!$this.hasClass('userscript') && content) {
-                
-                
-                if ($this.attr('data-user') === 'h_d') {
+
+
+                if ($this.attr('data-name') === 'h_d') {
                     //console.log(content);
                     var userDiscordName = content.match(/^&lt;(.*?)&gt;/)[1];
                     var $userDiscordName = $(userDiscordName);
                     $userDiscordName.addClass('buffer bufferLink author user');
-                    $userDiscordName.prepend('<img style="vertical-align:text-top" src="'+ discordLogo + '">&nbsp;');
+                    $userDiscordName.prepend(`<img style="vertical-align:text-top" src="${discordLogo}">&nbsp;`);
                     $userDiscordName.css('color', get_color($userDiscordName.text()));
 
                     content = content.replace(/^(&lt;.*?&gt; ?)/, '');
 
                     $this.find('.authorWrap .author').replaceWith($userDiscordName);
-                    
-                }
-                
-                
 
-                var newcontent = content.replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+                }
+
+
+                $thisContent.contents().filter(function() {
+                    return this.nodeType == 3;
+                }).each(function(){
+                    var $this = $(this);
+                    const thistextContent = $(this).text().replace(/(?:^|[^\w])(\/(u|r)\/\w+)/g, ' <a class="link" href="https://www.reddit.com$1" target="_blank">$1</a>');
+                    const $replaceNode = $(`<span>${thistextContent}</span>`);
+                    $this.replaceWith($replaceNode);
+                });
+
 
                 // Let's log highlights
                 if ($thisContent.closest('.type_buffer_msg').hasClass('highlight')) {
@@ -275,7 +310,7 @@ function main() {
                     var highlightText = $this.closest('.type_buffer_msg').text();
                     var highlightID = $this.closest('.type_buffer_msg').attr('id');
                     var highlightTime = $this.closest('.type_buffer_msg').attr('data-time');
-                    //console.log('highlight: ' + highlightText);
+
 
                     if (!pingLog.hasOwnProperty(highlightChannel)) {
                         pingLog[highlightChannel] = [];
@@ -286,15 +321,16 @@ function main() {
                         text: escapeHTML(highlightText),
                         time: highlightTime
                     });
-                    //console.log(pingLog);
 
 
                     var $pingCount = $this.closest('.buffercontainer').find('.tb-ping-count span');
                     var pingValue = $pingCount.text();
                     $pingCount.text(parseInt(pingValue, 10) + 1);
                 }
+
                 $this.addClass('userscript');
-                $thisContent.html(newcontent);
+
+
             }
         });
     }
@@ -303,11 +339,11 @@ function main() {
     function waitForBufferReady() {
 
 
-        if ($('#buffersContainer').is(":visible")) {
+        if ($('#buffersContainer').is(':visible')) {
             doLineStuff();
             $('#container').append('<div id="tb-pingmenu" class="contextMenu"> NONE YOU ARE NOT POPULAR! </div>');
         } else {
-            console.log("[CN] BufferContainer is not ready...");
+            console.log('[CN] BufferContainer is not ready...');
             window.setTimeout(function () {
                 waitForBufferReady();
             }, 100);
@@ -316,7 +352,7 @@ function main() {
 
     waitForBufferReady();
 
-    $body.on('click', 'a.tb-ping-count', function (e) {
+    $body.on('click', 'a.tb-ping-count', function () {
         var $this = $(this);
         var channelName = $this.closest('.bufferstatus').find('.label').text();
         var $pingMenu = $body.find('#tb-pingmenu');
@@ -324,19 +360,12 @@ function main() {
         if (pingLog.hasOwnProperty(channelName)) {
             var pinglist = pingLog[channelName];
 
-            function compareTime(a, b) {
-                if (a.time < b.time)
-                    return -1;
-                else if (a.time > b.time)
-                    return 1;
-                else
-                    return 0;
-            }
+
 
             pinglist.sort(compareTime);
             $pingMenu.html('<ul></ul>');
             $.each(pinglist, function (key, val) {
-                $pingMenu.append('<li data-lineID="' + val.id + '">' + val.text + '</li>');
+                $pingMenu.append(`<li data-lineID="${val.id}">${val.text}</li>`);
                 //console.log(val);
             });
         } else {
@@ -344,11 +373,11 @@ function main() {
         }
 
 
-        // Silly, but keeps the buffer from expanding or contracting as e.stopPropagation() doesn't work. 
+        // Silly, but keeps the buffer from expanding or contracting as e.stopPropagation() doesn't work.
         $this.closest('.status').click();
 
 
-        if ($pingMenu.is(":visible")) {
+        if ($pingMenu.is(':visible')) {
             $pingMenu.hide();
         } else {
             $pingMenu.show();
@@ -356,11 +385,11 @@ function main() {
 
     });
 
-    $body.on('click', '#tb-pingmenu li', function (e) {
+    $body.on('click', '#tb-pingmenu li', function () {
         $body.find('#tb-pingmenu').hide();
         var scrollToId = $(this).attr('data-lineid');
-        $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo('#' + scrollToId);
-        $('#' + scrollToId).fadeOut(1000).fadeIn(1000);
+        $('.buffercontainer:not(.buffercontainer--hidden) .scroll').scrollTo(`#${scrollToId}`);
+        $(`#${scrollToId}`).fadeOut(1000).fadeIn(1000);
     });
 
 
@@ -382,15 +411,15 @@ function main() {
      ^03,06colorbackground^ <-- same as above but with a background
      */
     $body.on('keyup', function (e) {
-        $checkbox = $body.find('.markdown:visible');
+        let $checkbox = $body.find('.markdown:visible');
         var checkboxChecked = $body.find('.markdown:visible:checked').length;
 
         if (e.ctrlKey && e.keyCode == 81) {
             if (checkboxChecked) {
-                $checkbox.prop("checked", false);
+                $checkbox.prop('checked', false);
                 checkboxChecked = false;
             } else {
-                $checkbox.prop("checked", true);
+                $checkbox.prop('checked', true);
                 checkboxChecked = true;
             }
         }
@@ -435,7 +464,7 @@ function main() {
         STYLE = 'style="padding: 5px 7px 0px 5px;"',
         intId;
 
-    $('#sidebar').prepend('<ul class="bufferList" ' + STYLE + '><p class="archiveToggle show tb-dont-hide" style="display: block;"><button class="tb-hide-inactive">hide inactive</button></p></ul>');
+    $('#sidebar').prepend(`<ul class="bufferList" ${STYLE}><p class="archiveToggle show tb-dont-hide" style="display: block;"><button class="tb-hide-inactive">hide inactive</button></p></ul>`);
 
     // wait for chann list to load
     setTimeout(function () {
@@ -445,7 +474,7 @@ function main() {
                 network = $this.closest('.connection').find('span.label:first').text();
 
 
-            $this.before('<input type="checkbox" class="tb-sticky-chan" style="display: none" ' + (IsStickChannel(name, network) ? 'checked' : ' ') + '/>');
+            $this.before(`<input type="checkbox" class="tb-sticky-chan" style="display: none" ${IsStickChannel(name, network) ? 'checked' : ' '}/>`);
         });
 
         $('.accountMenu__items-list:first').append('<li><a href="javascript:;" id="tb-select-sticky">Sticky chans</a></li>');
@@ -559,24 +588,24 @@ function inject(fn) {
         var has_jquery = typeof(window.jQuery) !== 'undefined';
 
         if (has_jquery === false || has_session === false) {
-            console.log("[CN] Resources are not ready...");
+            console.log('[CN] Resources are not ready...');
             window.setTimeout(function () {
                 waitloop(fn);
             }, 100);
             return;
         }
 
-        console.log("[CN] Required resources are ready, calling plugin function.");
+        console.log('[CN] Required resources are ready, calling plugin function.');
         fn();
     }
 
-    var wrap = "(" + fn.toString() + ")";
+    var wrap = `(${fn.toString()})`;
 
-    console.log("[CN] Injecting wrapper script.");
+    console.log('[CN] Injecting wrapper script.');
     var script = document.createElement('script');
-    script.textContent += "(" + waitloop.toString() + ')(' + wrap + ');';
+    script.textContent += `(${waitloop.toString()})(${wrap});`;
     document.body.appendChild(script);
-    console.log("[CN] Done injecting wrapper script.");
+    console.log('[CN] Done injecting wrapper script.');
 
 }
 inject(main);
